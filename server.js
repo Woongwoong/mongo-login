@@ -59,6 +59,6 @@ app.use(function (err, req, res, next) {
 
 
 const PORT = 8000;
-app.listen(PORT, function () {
-  console.log('Server is started on http://127.0.0.1:'+PORT);
+app.listen(PORT, '0.0.0.0', function () {
+  console.log('Server is started on http://0.0.0.0:' + PORT);
 });
