@@ -47,7 +47,7 @@ app.use(function(err, req, res, next) {
   res.locals.error = req.app.get('env') === 'development' ? err : {};
 
   res.status(err.status || 500);
-  res.render('error');  // 이 부분에서 error.ejs를 렌더링합니다.
+  res.render('error');
 });
 
 const port = process.env.PORT || 8000;
