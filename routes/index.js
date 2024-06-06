@@ -102,7 +102,8 @@ module.exports = (upload) => {
     const newImage = new Image({
       url: '/uploads/' + req.file.filename,
       title: req.body.title,
-      uploadedBy: req.session.username
+      uploadedBy: req.session.username,
+      filename: req.file.filename // 파일 이름 저장
     });
     newImage.save(err => {
       if (err) {
