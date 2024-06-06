@@ -1,64 +1,49 @@
-var express = require('express');
-var ejs = require('ejs');
-var path = require('path');
-var app = express();
-var bodyParser = require('body-parser');
-var mongoose = require('mongoose');
-var session = require('express-session');
-var MongoStore = require('connect-mongo')(session);
+// server.js
+const createError = require('http-errors');
+const express = require('express');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
+const mongoose = require('mongoose');
 
-mongoose.connect('mongodb://localhost:27017/web2024?retryWrites=true&w=majority', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-}, (err) => {
-  if (!err) {
-    console.log('MongoDB Connection Succeeded.');
-  } else {
-    console.log('Error in DB connection : ' + err);
-  }
-});
+const indexRouter = require('./routes/index');
+const usersRouter = require('./routes/users');
 
-var db = mongoose.connection;
-db.on('error', console.error.bind(console, 'connection error:'));
-db.once('open', function () {
-});
+const app = express();
 
-app.use(session({
-  secret: 'ks edu',
-  resave: true,
-  saveUninitialized: false,
-  store: new MongoStore({
-    mongooseConnection: db
-  })
-}));
+// MongoDB 연결 설정
+mongoose.connect('mongodb://localhost:27017/photo_gallery', { useNewUrlParser: true, useUnifiedTopology: true });
 
+// 뷰 엔진 설정
 app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'ejs');	
+app.set('view engine', 'ejs');
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(logger('dev'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
+app.use(express.static(path.join(__dirname, 'public')));
 
-app.use(express.static(__dirname + '/public'));
+app.use('/', indexRouter);
+app.use('/users', usersRouter);
 
-var index = require('./routes/index');
-app.use('/', index);
-
-// catch 404 and forward to error handler
-app.use(function (req, res, next) {
-  var err = new Error('File Not Found');
-  err.status = 404;
-  next(err);
+// 404 에러 핸들링
+app.use(function(req, res, next) {
+  next(createError(404));
 });
 
-// error handler
-// define as the last app.use callback
-app.use(function (err, req, res, next) {
+// 에러 핸들링
+app.use(function(err, req, res, next) {
+  res.locals.message = err.message;
+  res.locals.error = req.app.get('env') === 'development' ? err : {};
+
   res.status(err.status || 500);
-  res.send(err.message);
+  res.render('error');
 });
 
-
-const PORT = 8000;
-app.listen(PORT, '0.0.0.0', function () {
-  console.log('Server is started on http://0.0.0.0:' + PORT);
+const port = process.env.PORT || 3000;
+app.listen(port, () => {
+  console.log(`Server is running on http://localhost:${port}`);
 });
+
+module.exports = app;
