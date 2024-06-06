@@ -22,7 +22,7 @@ router.get('/', async (req, res) => {
     res.render('home', { 
         title: 'Home',
         photos,
-        user: req.session.user || { name: 'Guest', email: 'guest@example.com' }  // 수정된 부분
+        user: req.session.user || { name: 'Guest', email: 'guest@example.com' }
     });
 });
 
@@ -44,7 +44,7 @@ router.post('/upload', upload.single('photo'), (req, res) => {
 
 /* GET home page. */
 router.get('/home', function(req, res, next) {
-    res.render('home', { title: 'Home', user: req.session.user || { name: 'Guest', email: 'guest@example.com' } });  // 수정된 부분
+    res.render('home', { title: 'Home', user: req.session.user || { name: 'Guest', email: 'guest@example.com' } });
 });
 
 /* GET profile page. */
@@ -62,8 +62,27 @@ router.get('/logout', function(req, res, next) {
         if (err) {
             return next(err);
         }
-        res.redirect('/');
+        res.redirect('/');  // 로그인 화면으로 리디렉션
     });
+});
+
+/* DELETE photo */
+router.post('/delete/:id', async (req, res) => {
+    try {
+        const photo = await Photo.findById(req.params.id);
+        if (!photo) {
+            return res.status(404).send('Photo not found');
+        }
+
+        if (!req.session.user || photo.uploadedBy.toString() !== req.session.user._id.toString()) {
+            return res.status(403).send('You do not have permission to delete this photo');
+        }
+
+        await Photo.findByIdAndDelete(req.params.id);
+        res.redirect('/');
+    } catch (err) {
+        res.status(500).send(err);
+    }
 });
 
 module.exports = router;
