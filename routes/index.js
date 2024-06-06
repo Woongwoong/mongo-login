@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const User = require('../models/User'); // 경로가 올바른지 확인
-const Image = require('../models/Image'); // 이미지 모델 추가
+const User = require('../models/User');
+const Image = require('../models/Image');
 
 // 홈 라우트
 router.get('/', (req, res) => {
@@ -24,6 +24,7 @@ router.post('/login', (req, res) => {
       return res.redirect('/login');
     }
     req.session.loggedIn = true;
+    req.session.username = username;
     res.redirect('/gallery');
   });
 });
@@ -32,6 +33,22 @@ router.post('/login', (req, res) => {
 router.get('/logout', (req, res) => {
   req.session.destroy();
   res.redirect('/login');
+});
+
+// 회원가입 라우트
+router.get('/register', (req, res) => {
+  res.render('register');
+});
+
+router.post('/register', (req, res) => {
+  const { username, password } = req.body;
+  const newUser = new User({ username, password });
+  newUser.save(err => {
+    if (err) {
+      return res.redirect('/register');
+    }
+    res.redirect('/login');
+  });
 });
 
 // 갤러리 라우트
@@ -61,12 +78,27 @@ router.get('/gallery', (req, res) => {
 
 // 이미지 삭제 라우트
 router.get('/delete/:id', (req, res) => {
-  if (!req.session.loggedIn) {
-    return res.redirect('/login');
-  }
   Image.findByIdAndDelete(req.params.id, (err) => {
     if (err) {
       return res.status(500).send('Error deleting image');
+    }
+    res.redirect('/gallery');
+  });
+});
+
+// 이미지 업로드 라우트 (이미지 모델 수정 필요)
+router.post('/upload', (req, res) => {
+  if (!req.session.loggedIn) {
+    return res.redirect('/login');
+  }
+  const newImage = new Image({
+    url: req.body.url,
+    title: req.body.title,
+    uploadedBy: req.session.username // 로그인한 사용자 이름 저장
+  });
+  newImage.save(err => {
+    if (err) {
+      return res.status(500).send('Error uploading image');
     }
     res.redirect('/gallery');
   });
