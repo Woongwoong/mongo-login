@@ -24,12 +24,12 @@
     <div class="topmenu">
       <a href="/home">Home</a>
       <div>
-        <a href="/profile"><%= user.name %></a> user  <!-- 수정된 부분 -->
+        <a href="/profile"><%= user.name %></a> user 
         <a href="/logout">Logout</a>
       </div>
     </div>
 
-    <h2>Welcome, <%= user.name %>!</h2>  <!-- 수정된 부분 -->
+    <h2>Welcome, <%= user.name %>!</h2>
     <% if (user.name !== 'Guest') { %>
       <h2>Upload Photo</h2>
       <form action="/upload" method="POST" enctype="multipart/form-data">
@@ -45,7 +45,12 @@
       <% photos.forEach(photo => { %>
         <div>
           <img src="/uploads/<%= photo.filename %>" alt="Photo">
-          <p>Uploaded by: <%= photo.uploadedBy ? photo.uploadedBy.name : 'Unknown' %></p>  <!-- 수정된 부분 -->
+          <p>Uploaded by: <%= photo.uploadedBy ? photo.uploadedBy.name : 'Unknown' %></p>
+          <% if (user.name !== 'Guest' && user._id.toString() === photo.uploadedBy._id.toString()) { %>
+            <form action="/delete/<%= photo._id %>" method="POST" style="display:inline;">
+              <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+            </form>
+          <% } %>
         </div>
       <% }) %>
     </div>
