@@ -1,101 +1,75 @@
 const express = require('express');
 const router = express.Router();
-const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
-const Photo = require('../models/photo');
-const User = require('../models/user');
-
-// 파일 업로드 설정
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, path.join(__dirname, '../public/uploads'));
-    },
-    filename: function (req, file, cb) {
-        cb(null, Date.now() + path.extname(file.originalname));
-    }
-});
-const upload = multer({ storage: storage });
+const User = require('../models/User');
+const Image = require('../models/Image'); // 이미지 모델 추가
 
 // 홈 라우트
-router.get('/', async (req, res) => {
-    const photos = await Photo.find().populate('uploadedBy').sort({ uploadDate: -1 });
-    res.render('home', { 
-        title: 'Home',
-        photos,
-        user: req.session.user || { name: 'Guest', email: 'guest@example.com' }
-    });
+router.get('/', (req, res) => {
+  if (req.session.loggedIn) {
+    res.redirect('/gallery');
+  } else {
+    res.redirect('/login');
+  }
 });
 
-// 사진 업로드 라우트
-router.post('/upload', upload.single('photo'), (req, res) => {
-    if (!req.session.user) {
-        return res.status(401).send('You must be logged in to upload photos');
+// 로그인 라우트
+router.get('/login', (req, res) => {
+  res.render('login');
+});
+
+router.post('/login', (req, res) => {
+  const { username, password } = req.body;
+  User.findOne({ username, password }, (err, user) => {
+    if (err || !user) {
+      return res.redirect('/login');
     }
-
-    const newPhoto = new Photo({
-        filename: req.file.filename,
-        uploadedBy: req.session.user._id
-    });
-
-    newPhoto.save()
-        .then(() => res.redirect('/'))
-        .catch(err => res.status(500).send(err));
+    req.session.loggedIn = true;
+    res.redirect('/gallery');
+  });
 });
 
-/* GET home page. */
-router.get('/home', async (req, res, next) => {
-    const photos = await Photo.find().populate('uploadedBy').sort({ uploadDate: -1 });
-    res.render('home', { 
-        title: 'Home', 
-        photos, 
-        user: req.session.user || { name: 'Guest', email: 'guest@example.com' } 
-    });
+// 로그아웃 라우트
+router.get('/logout', (req, res) => {
+  req.session.destroy();
+  res.redirect('/login');
 });
 
-/* GET profile page. */
-router.get('/profile', function(req, res, next) {
-    if (req.session.user) {
-        res.render('profile', { title: 'Profile', name: req.session.user.name, email: req.session.user.email });
-    } else {
-        res.redirect('/');
+// 갤러리 라우트
+router.get('/gallery', (req, res) => {
+  if (!req.session.loggedIn) {
+    return res.redirect('/login');
+  }
+  const page = parseInt(req.query.page) || 1;
+  const perPage = 16;
+
+  Image.find().skip((page - 1) * perPage).limit(perPage).exec((err, images) => {
+    if (err) {
+      return res.status(500).send('Error loading images');
     }
-});
-
-/* GET logout. */
-router.get('/logout', function(req, res, next) {
-    req.session.destroy(function(err) {
-        if (err) {
-            return next(err);
-        }
-        res.redirect('/');  // 로그인 화면으로 리디렉션
+    Image.countDocuments().exec((err, count) => {
+      if (err) {
+        return res.status(500).send('Error counting images');
+      }
+      res.render('gallery', {
+        images,
+        page,
+        totalPages: Math.ceil(count / perPage)
+      });
     });
+  });
 });
 
-/* DELETE photo */
-router.post('/delete/:id', async (req, res) => {
-    try {
-        const photo = await Photo.findById(req.params.id);
-        if (!photo) {
-            return res.status(404).send('Photo not found');
-        }
-
-        if (!req.session.user || photo.uploadedBy.toString() !== req.session.user._id.toString()) {
-            return res.status(403).send('You do not have permission to delete this photo');
-        }
-
-        const filePath = path.join(__dirname, '../public/uploads', photo.filename);
-        fs.unlink(filePath, async (err) => {
-            if (err) {
-                return res.status(500).send(err);
-            }
-
-            await Photo.findByIdAndDelete(req.params.id);
-            res.redirect('/');
-        });
-    } catch (err) {
-        res.status(500).send(err);
+// 이미지 삭제 라우트
+router.get('/delete/:id', (req, res) => {
+  if (!req.session.loggedIn) {
+    return res.redirect('/login');
+  }
+  Image.findByIdAndDelete(req.params.id, (err) => {
+    if (err) {
+      return res.status(500).send('Error deleting image');
     }
+    res.redirect('/gallery');
+  });
 });
 
 module.exports = router;
