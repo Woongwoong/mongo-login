@@ -7,33 +7,39 @@ const User = require('../models/user');
 
 // 파일 업로드 설정
 const storage = multer.diskStorage({
-    destination: './public/uploads',
-    filename: function (req, file, cb) {
-        cb(null, Date.now() + path.extname(file.originalname));
-    }
+  destination: function (req, file, cb) {
+    cb(null, path.join(__dirname, '../public/uploads'));
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + path.extname(file.originalname));
+  }
 });
 const upload = multer({ storage: storage });
 
 // 홈 라우트
 router.get('/', async (req, res) => {
-    const photos = await Photo.find().populate('uploadedBy').sort({ uploadDate: -1 });
-    res.render('home', { 
-        title: 'Home',
-        photos,
-        name: req.session.user ? req.session.user.name : 'Guest',
-        email: req.session.user ? req.session.user.email : 'guest@example.com'
-    });
+  const photos = await Photo.find().populate('uploadedBy').sort({ uploadDate: -1 });
+  res.render('home', { 
+    title: 'Home',
+    photos,
+    name: req.session.user ? req.session.user.name : 'Guest',
+    email: req.session.user ? req.session.user.email : 'guest@example.com'
+  });
 });
 
 // 사진 업로드 라우트
 router.post('/upload', upload.single('photo'), (req, res) => {
-    const newPhoto = new Photo({
-        filename: req.file.filename,
-        uploadedBy: req.session.user._id
-    });
-    newPhoto.save()
-        .then(() => res.redirect('/'))
-        .catch(err => res.status(500).send(err));
+  if (!req.session.user) {
+    return res.status(401).send('You must be logged in to upload photos');
+  }
+  
+  const newPhoto = new Photo({
+    filename: req.file.filename,
+    uploadedBy: req.session.user._id
+  });
+  newPhoto.save()
+    .then(() => res.redirect('/'))
+    .catch(err => res.status(500).send(err));
 });
 
 /* GET home page. */
