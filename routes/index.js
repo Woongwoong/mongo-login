@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
 const Photo = require('../models/photo');
 const User = require('../models/user');
 
@@ -78,8 +79,15 @@ router.post('/delete/:id', async (req, res) => {
             return res.status(403).send('You do not have permission to delete this photo');
         }
 
-        await Photo.findByIdAndDelete(req.params.id);
-        res.redirect('/');
+        const filePath = path.join(__dirname, '../public/uploads', photo.filename);
+        fs.unlink(filePath, async (err) => {
+            if (err) {
+                return res.status(500).send(err);
+            }
+
+            await Photo.findByIdAndDelete(req.params.id);
+            res.redirect('/');
+        });
     } catch (err) {
         res.status(500).send(err);
     }
