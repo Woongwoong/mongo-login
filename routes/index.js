@@ -157,5 +157,40 @@ router.post('/forgetpass', function (req, res, next) {
 	});
 	
 });
+const express = require('express');
+const router = express.Router();
+const multer = require('multer');
+const path = require('path');
+const Photo = require('../models/photo');
+
+// 파일 업로드 설정
+const storage = multer.diskStorage({
+    destination: './public/uploads',
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + path.extname(file.originalname));
+    }
+});
+const upload = multer({ storage: storage });
+
+// 메인 홈 라우트
+router.get('/', async (req, res) => {
+    const photos = await Photo.find().sort({ uploadDate: -1 });
+    res.render('home', { photos });
+});
+
+// 사진 업로드 라우트
+router.post('/upload', upload.single('photo'), (req, res) => {
+    const newPhoto = new Photo({
+        filename: req.file.filename
+    });
+    newPhoto.save()
+        .then(() => res.redirect('/'))
+        .catch(err => res.status(500).send(err));
+});
+
 
 module.exports = router;
+
+
+
+
