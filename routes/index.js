@@ -7,12 +7,12 @@ const User = require('../models/user');
 
 // 파일 업로드 설정
 const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, path.join(__dirname, '../public/uploads'));
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + path.extname(file.originalname));
-  }
+    destination: function (req, file, cb) {
+        cb(null, path.join(__dirname, '../public/uploads'));
+    },
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + path.extname(file.originalname));
+    }
 });
 const upload = multer({ storage: storage });
 
@@ -32,11 +32,12 @@ router.post('/upload', upload.single('photo'), (req, res) => {
   if (!req.session.user) {
     return res.status(401).send('You must be logged in to upload photos');
   }
-  
+
   const newPhoto = new Photo({
     filename: req.file.filename,
     uploadedBy: req.session.user._id
   });
+
   newPhoto.save()
     .then(() => res.redirect('/'))
     .catch(err => res.status(500).send(err));
