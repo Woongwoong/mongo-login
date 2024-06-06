@@ -16,14 +16,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/khlee2016/mongo-server"
+    "url": "https://github.com/Woongwoong/mongo-login"
   },
   "author": "khlee",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/khlee2016/mongo-server"
+    "url": "https://github.com/Woongwoong/mongo-login"
   },
-  "homepage": "https://github.com/khlee2016/mongo-server"
+  "homepage": "https://github.com/Woongwoong/mongo-login"
 },
 {
   "name": "mongo-login",
