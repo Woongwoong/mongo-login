@@ -24,4 +24,21 @@
     "url": "https://github.com/khlee2016/mongo-server"
   },
   "homepage": "https://github.com/khlee2016/mongo-server"
+},
+{
+  "name": "mongo-login",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "mongoose": "^6.0.12",
+    "multer": "^1.4.3",
+    "ejs": "^3.1.6"
+  },
+  "author": "",
+  "license": "ISC"
 }
