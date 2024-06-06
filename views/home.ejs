@@ -45,7 +45,7 @@
       <% photos.forEach(photo => { %>
         <div>
           <img src="/uploads/<%= photo.filename %>" alt="Photo">
-          <p>Uploaded by: <%= photo.uploadedBy.name %></p>
+          <p>Uploaded by: <%= photo.uploadedBy ? photo.uploadedBy.name : 'Unknown' %></p>
         </div>
       <% }) %>
     </div>
