@@ -38,6 +38,6 @@ const upload = multer({ storage: storage });
 const indexRouter = require('./routes/index')(upload);  // upload 미들웨어를 라우트에 전달
 app.use('/', indexRouter);
 
-app.listen(3000, () => {
-  console.log('Server is running on http://localhost:3000');
+app.listen(8000, () => {
+  console.log('Server is running on http://localhost:8000');
 });
