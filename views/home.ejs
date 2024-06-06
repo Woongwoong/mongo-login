@@ -24,8 +24,10 @@
     <div class="topmenu">
       <a href="/home">Home</a>
       <div>
-        <a href="/profile"><%= user.name %></a> user 
-        <a href="/logout">Logout</a>
+        <% if (user.name !== 'Guest') { %>
+          <a href="/profile"><%= user.name %></a> user 
+          <a href="/logout">Logout</a>
+        <% } %>
       </div>
     </div>
 
