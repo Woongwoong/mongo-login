@@ -1,4 +1,3 @@
-// models/photo.js
 const mongoose = require('mongoose');
 
 const photoSchema = new mongoose.Schema({
