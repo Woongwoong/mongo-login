@@ -44,8 +44,13 @@ router.post('/upload', upload.single('photo'), (req, res) => {
 });
 
 /* GET home page. */
-router.get('/home', function(req, res, next) {
-    res.render('home', { title: 'Home', user: req.session.user || { name: 'Guest', email: 'guest@example.com' } });
+router.get('/home', async (req, res, next) => {
+    const photos = await Photo.find().populate('uploadedBy').sort({ uploadDate: -1 });
+    res.render('home', { 
+        title: 'Home', 
+        photos, 
+        user: req.session.user || { name: 'Guest', email: 'guest@example.com' } 
+    });
 });
 
 /* GET profile page. */
