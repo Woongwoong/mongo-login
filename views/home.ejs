@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Photo Gallery</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/css/main.css">
+    <style>
+        .gallery {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+        .gallery img {
+            max-width: 200px;
+            max-height: 200px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="topmenu">
+            <a href="/home.html">Home</a>
+            <div>
+                <a href="/profile"><%= name %></a> user 
+                <a href="/logout">Logout</a>
+            </div>
+        </div>
+
+        <h2>Upload Photo</h2>
+        <form action="/upload" method="POST" enctype="multipart/form-data">
+            <input type="file" name="photo" required>
+            <button type="submit" class="btn btn-primary">Upload</button>
+        </form>
+
+        <h2>Gallery</h2>
+        <div class="gallery">
+            <% photos.forEach(photo => { %>
+                <img src="/uploads/<%= photo.filename %>" alt="Photo">
+            <% }) %>
+        </div>
+    </div>
+</body>
+</html>
