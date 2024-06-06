@@ -19,6 +19,7 @@ app.use(session({
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));  // 업로드 폴더를 static으로 설정
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
@@ -37,6 +38,6 @@ const upload = multer({ storage: storage });
 const indexRouter = require('./routes/index')(upload);  // upload 미들웨어를 라우트에 전달
 app.use('/', indexRouter);
 
-app.listen(8000, () => {
-  console.log('Server is running on http://localhost:8000');
+app.listen(3000, () => {
+  console.log('Server is running on http://localhost:3000');
 });
