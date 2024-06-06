@@ -47,10 +47,10 @@ app.use(function(err, req, res, next) {
   res.locals.error = req.app.get('env') === 'development' ? err : {};
 
   res.status(err.status || 500);
-  res.render('error');
+  res.render('error');  // 이 부분에서 error.ejs를 렌더링합니다.
 });
 
-const port = process.env.PORT || 8000;
+const port = process.env.PORT || 3000;
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
