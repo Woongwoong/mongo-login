@@ -109,7 +109,7 @@ module.exports = (upload) => {
       if (err) {
         return res.status(500).send('Error uploading image');
       }
-      res.redirect('/gallery');
+      res.redirect('/gallery'); // 업로드 후 갤러리 페이지로 리다이렉트
     });
   });
 
