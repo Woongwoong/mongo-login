@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const User = require('../models/User');
-const Image = require('../models/Image'); // 이미지 모델 추가
+const User = require('../models/user');
+const Image = require('../models/image'); // 이미지 모델 추가
 
 // 홈 라우트
 router.get('/', (req, res) => {
