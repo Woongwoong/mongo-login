@@ -3,11 +3,16 @@ const session = require('express-session');
 const passport = require('passport');
 const flash = require('connect-flash');
 const path = require('path');
+const mongoose = require('mongoose');
 const indexRouter = require('./routes/index');
+const authRouter = require('./routes/auth');
 
 const app = express();
 
 require('./config/passport')(passport);
+
+// MongoDB 연결 설정
+mongoose.connect('mongodb://localhost/mongo-login', { useNewUrlParser: true, useUnifiedTopology: true });
 
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
@@ -25,13 +30,7 @@ app.use(flash());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
-
-function isAuthenticated(req, res, next) {
-    if (req.isAuthenticated()) {
-        return next();
-    }
-    res.redirect('/login');
-}
+app.use('/', authRouter);
 
 app.listen(8000, () => {
     console.log('Server is running on port 8000');
