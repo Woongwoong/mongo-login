@@ -1,39 +1,50 @@
 const express = require('express');
 const session = require('express-session');
-const passport = require('passport');
-const flash = require('connect-flash');
+const bodyParser = require('body-parser');
 const path = require('path');
 const mongoose = require('mongoose');
-const indexRouter = require('./routes/index');
-const authRouter = require('./routes/auth');
-
 const app = express();
 
-require('./config/passport')(passport);
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+app.use(session({ secret: 'secret', resave: true, saveUninitialized: true }));
 
-// MongoDB 연결 설정
-mongoose.connect('mongodb://localhost/mongo-login', { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect('mongodb://localhost:27017/mongo-login', { useNewUrlParser: true });
 
-app.set('views', path.join(__dirname, 'views'));
+const User = require('./models/User');
+const Gallery = require('./models/Gallery');
+
 app.set('view engine', 'ejs');
-
-app.use(express.urlencoded({ extended: false }));
-app.use(session({
-    secret: 'your_secret_key',
-    resave: false,
-    saveUninitialized: false
-}));
-app.use(passport.initialize());
-app.use(passport.session());
-app.use(flash());
+app.set('views', path.join(__dirname, 'views'));
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', indexRouter);
-app.use('/', authRouter);
+app.use('/gallery', require('./routes/gallery'));
+
+app.get('/', (req, res) => {
+    res.redirect('/login');
+});
+
+app.get('/login', (req, res) => {
+    res.render('login');
+});
+
+app.get('/register', (req, res) => {
+    res.render('register');
+});
+
+app.post('/login', (req, res) => {
+    // 로그인 처리 코드
+    req.session.loggedin = true;
+    req.session.username = req.body.username;
+    res.redirect('/gallery');
+});
+
+app.post('/register', (req, res) => {
+    // 회원가입 처리 코드
+    res.redirect('/login');
+});
 
 app.listen(8000, () => {
     console.log('Server is running on port 8000');
 });
-
-module.exports = app;
