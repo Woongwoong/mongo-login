@@ -1,56 +1,27 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gallery</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <link rel="stylesheet" href="/css/main.css">
-    <style>
-        .gallery {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-        }
-        .gallery-item {
-            width: 24%;
-            margin-bottom: 20px;
-        }
-        .gallery-item img {
-            width: 100%;
-            height: auto;
-        }
-        .gallery-item-title {
-            text-align: center;
-            margin-top: 5px;
-        }
-    </style>
+    <link rel="stylesheet" href="/stylesheets/style.css">
 </head>
 <body>
-    <div class="container">
-        <div class="row">
-            <div class="col-md-12">
-                <h1 class="text-center">Image Gallery</h1>
-                <form action="/upload" method="post" enctype="multipart/form-data">
-                    <input type="file" name="image" required>
-                    <button type="submit">Upload</button>
+    <h1>Gallery</h1>
+    <form action="/gallery/upload" method="post" enctype="multipart/form-data">
+        <input type="file" name="image" required>
+        <button type="submit">Upload</button>
+    </form>
+    <div class="grid-container">
+        <% images.forEach(image => { %>
+            <div class="grid-item">
+                <img src="/<%= image.path %>" alt="<%= image.name %>">
+                <p><%= image.name %></p>
+                <form action="/gallery/delete/<%= image._id %>" method="post">
+                    <button type="submit">Delete</button>
                 </form>
             </div>
-        </div>
-        <div class="row gallery">
-            <% images.forEach(function(image) { %>
-                <div class="gallery-item">
-                    <img src="<%= image.url %>" alt="<%= image.title %>">
-                    <div class="gallery-item-title">
-                        <p><%= image.title %></p>
-                    </div>
-                    <form action="/delete" method="post">
-                        <input type="hidden" name="imageUrl" value="<%= image.url %>">
-                        <button type="submit">Delete</button>
-                    </form>
-                </div>
-            <% }) %>
-        </div>
+        <% }) %>
     </div>
 </body>
-</html>
+</html>(
